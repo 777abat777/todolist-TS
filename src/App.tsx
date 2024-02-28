@@ -87,6 +87,25 @@ function App() {
         setTodoId((prev) => prev + 1)
     }
 
+    function editTitle(title: string, id: number, taskListId: number) {
+        let output = taskObjects[taskListId].map((el) => {
+            if (el.id === id) {
+                el.title = title
+                return el
+            }
+            return el
+        })
+        taskObjects[taskListId] = output
+        setTaskObjects({ ...taskObjects })
+    }
+    function editTaskTitle(title: string, taskListId: number) {
+        let task = taskLists.find(el => el.id === taskListId)
+        if (task) {
+            task.title = title
+            setTasklists([...taskLists])
+        }
+    }
+
     return (
 
         <div className="App">
@@ -100,7 +119,7 @@ function App() {
                     taskForTodoList = taskForTodoList.filter(el => el.isDone === true)
                 }
                 return (
-                    <Todolist key={taskList.id} taskListId={taskList.id} taskFilter={taskList.filter} tasks={taskForTodoList} title={taskList.title} removeTask={removeTask}
+                    <Todolist editTaskTitle={editTaskTitle} editTitle={editTitle} key={taskList.id} taskListId={taskList.id} taskFilter={taskList.filter} tasks={taskForTodoList} title={taskList.title} removeTask={removeTask}
                         changeFilter={changeFilter} addTask={addTask} changeStatus={changeStatus} removeTodoList={removeTodoList} />
                 )
             }
