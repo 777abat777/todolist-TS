@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useState } from 'react'
 import { filterValuesTypes } from '../../App'
+import AddValueForm from '../AddValueForm/AddValueForm'
 
 type Props = {
     title: string
@@ -18,30 +19,17 @@ export type Task = {
     isDone: boolean
 }
 
-function Todolist({ title, tasks, removeTask, changeFilter, addTask, changeStatus, taskFilter, taskListId, removeTodoList }: Props) {
-    let [newTaskValue, setNewTaskValue] = useState<string>('')
-    let [errorInput, setErrorInput] = useState<null | string>(null)
-    function editTaskValue(e: ChangeEvent<HTMLInputElement>) {
-        setNewTaskValue(e.currentTarget.value)
-    }
-    function addNewTask() {
-        if (newTaskValue.trim() === "") {
-            setErrorInput("error input")
-            return
-        }
-        addTask(newTaskValue.trim(), taskListId)
-        setNewTaskValue('')
-    }
 
+function Todolist({ title, tasks, removeTask, changeFilter, addTask, changeStatus, taskFilter, taskListId, removeTodoList }: Props) {
+
+    function addNewTask(value: string) {
+        addTask(value, taskListId)
+    }
 
     return (
         <div className='todo_list'>
             <span>{title}</span> <button onClick={() => removeTodoList(taskListId)}>x</button>
-            <div>
-                <input type="text" value={newTaskValue} onChange={editTaskValue} onKeyDown={() => setErrorInput(null)} />
-                <button onClick={addNewTask}>+</button>
-                {errorInput && <div>{errorInput}</div>}
-            </div>
+            <AddValueForm addNewItem={addNewTask} />
             <ul>
                 {tasks.map((el) =>
                     <li key={el.id} className={el.isDone ? 'is_done' : ""}>
@@ -60,3 +48,4 @@ function Todolist({ title, tasks, removeTask, changeFilter, addTask, changeStatu
 }
 
 export default Todolist
+

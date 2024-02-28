@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import Todolist, { Task } from './components/Todolist/Todolist';
+import AddValueForm from './components/AddValueForm/AddValueForm';
 
 export type filterValuesTypes = "all" | 'active' | 'completed'
 export type taskListType = {
@@ -8,15 +9,20 @@ export type taskListType = {
     title: string
     filter: filterValuesTypes
 }
+export type taskObjectsTypes = {
+    [key: string]: Array<Task>
+}
 
 function App() {
+    let [counter, setCounter] = useState(5)
+    let [todoId, setTodoId] = useState(3)
     let todolist1Id = 1
     let todolist2Id = 2
     let [taskLists, setTasklists] = useState<Array<taskListType>>([
         { id: todolist1Id, title: "first", filter: 'all' },
         { id: todolist2Id, title: "second", filter: 'completed' },
     ])
-    let [taskObjects, setTaskObjects] = useState({
+    let [taskObjects, setTaskObjects] = useState<taskObjectsTypes>({
         [todolist1Id]: [
             { id: 1, title: 'Html', isDone: true },
             { id: 2, title: 'css', isDone: false },
@@ -28,7 +34,7 @@ function App() {
             { id: 3, title: 'js', isDone: false }
         ]
     })
-    let [counter, setCounter] = useState(5)
+
 
 
     function removeTask(id: number, taskListId: number) {
@@ -73,10 +79,18 @@ function App() {
         taskObjects[taskListId] = output
         setTaskObjects({ ...taskObjects })
     }
+    function addNewTaskList(title: string) {
+        let newTaskList: taskListType = { id: todoId, title: title, filter: 'all' }
+        setTasklists([newTaskList, ...taskLists])
+        taskObjects[todoId] = []
+        setTaskObjects({ ...taskObjects })
+        setTodoId((prev) => prev + 1)
+    }
 
     return (
 
         <div className="App">
+            <AddValueForm addNewItem={addNewTaskList} />
             {taskLists.map((taskList) => {
                 let taskForTodoList = taskObjects[taskList.id]
                 if (taskList.filter === "active") {
@@ -90,10 +104,6 @@ function App() {
                         changeFilter={changeFilter} addTask={addTask} changeStatus={changeStatus} removeTodoList={removeTodoList} />
                 )
             }
-
-
-
-
             )}
 
         </div>
