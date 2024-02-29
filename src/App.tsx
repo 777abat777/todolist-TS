@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import Todolist, { Task } from './components/Todolist/Todolist';
 import AddValueForm from './components/AddValueForm/AddValueForm';
+import { Grid, Paper } from '@mui/material';
 
 export type filterValuesTypes = "all" | 'active' | 'completed'
 export type taskListType = {
@@ -107,23 +108,29 @@ function App() {
     }
 
     return (
-
-        <div className="App">
-            <AddValueForm addNewItem={addNewTaskList} />
-            {taskLists.map((taskList) => {
-                let taskForTodoList = taskObjects[taskList.id]
-                if (taskList.filter === "active") {
-                    taskForTodoList = taskForTodoList.filter(el => el.isDone === false)
+        <div className="App" style={{ padding: '20px' }}>
+            <Paper sx={{ width: '250px', padding: '20px' }}>
+                <h2 style={{ textAlign: "center" }}>Add new list</h2>
+                <AddValueForm addNewItem={addNewTaskList} />
+            </Paper>
+            <Grid container spacing={2} sx={{ padding: '20px 0' }}>
+                {taskLists.map((taskList) => {
+                    let taskForTodoList = taskObjects[taskList.id]
+                    if (taskList.filter === "active") {
+                        taskForTodoList = taskForTodoList.filter(el => el.isDone === false)
+                    }
+                    if (taskList.filter === "completed") {
+                        taskForTodoList = taskForTodoList.filter(el => el.isDone === true)
+                    }
+                    return (
+                        <Grid item sx={{ padding: '20px' }}>
+                            <Todolist editTaskTitle={editTaskTitle} editTitle={editTitle} key={taskList.id} taskListId={taskList.id} taskFilter={taskList.filter} tasks={taskForTodoList} title={taskList.title} removeTask={removeTask}
+                                changeFilter={changeFilter} addTask={addTask} changeStatus={changeStatus} removeTodoList={removeTodoList} />
+                        </Grid>
+                    )
                 }
-                if (taskList.filter === "completed") {
-                    taskForTodoList = taskForTodoList.filter(el => el.isDone === true)
-                }
-                return (
-                    <Todolist editTaskTitle={editTaskTitle} editTitle={editTitle} key={taskList.id} taskListId={taskList.id} taskFilter={taskList.filter} tasks={taskForTodoList} title={taskList.title} removeTask={removeTask}
-                        changeFilter={changeFilter} addTask={addTask} changeStatus={changeStatus} removeTodoList={removeTodoList} />
-                )
-            }
-            )}
+                )}
+            </Grid>
 
         </div>
     );

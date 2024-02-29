@@ -1,7 +1,9 @@
-import React, { ChangeEvent, useState } from 'react'
 import { filterValuesTypes } from '../../App'
 import AddValueForm from '../AddValueForm/AddValueForm'
 import EditableTitle from '../EditableTitle/EditableTitle'
+import { Button, Checkbox, IconButton, Paper } from '@mui/material';
+import { Stack } from '@mui/material';
+import { CloseSharp } from '@mui/icons-material';
 
 type Props = {
     title: string
@@ -32,8 +34,13 @@ function Todolist({ title, tasks, removeTask, changeFilter, addTask, changeStatu
         editTaskTitle(title, taskListId)
     }
     return (
-        <div className='todo_list'>
-            <EditableTitle title={title} changeTitle={changeTitle} /><button onClick={() => removeTodoList(taskListId)}>x</button>
+        <Paper elevation={3} sx={{ p: '10px', display: "flex", flexDirection: "column", maxWidth: "280px" }}>
+            <Stack direction={'row'} justifyContent={'center'} spacing={1}>
+                <EditableTitle title={title} changeTitle={changeTitle} />
+                <IconButton aria-label="delete" size='small' onClick={() => removeTodoList(taskListId)}>
+                    <CloseSharp fontSize="inherit" />
+                </IconButton>
+            </Stack>
             <AddValueForm addNewItem={addNewTask} />
             <ul>
                 {tasks.map((el) => {
@@ -41,22 +48,24 @@ function Todolist({ title, tasks, removeTask, changeFilter, addTask, changeStatu
                         editTitle(title, el.id, taskListId)
                     }
                     return (
-                        <li key={el.id} className={el.isDone ? 'is_done' : ""}>
-                            <input type="checkbox" checked={el.isDone} onChange={() => changeStatus(el.id, taskListId)} />
+                        <Stack direction={"row"} alignItems={'center'} justifyContent={'center'} spacing={1} key={el.id} className={el.isDone ? 'is_done' : ""}>
+                            <Checkbox checked={el.isDone} onChange={() => changeStatus(el.id, taskListId)} />
                             <EditableTitle title={el.title} changeTitle={changeTitle} />
-                            <button onClick={() => { removeTask(el.id, taskListId) }}>x</button>
-                        </li>
+                            <IconButton aria-label="delete" size='small' onClick={() => { removeTask(el.id, taskListId) }}>
+                                <CloseSharp fontSize="inherit" />
+                            </IconButton>
+                        </Stack>
                     )
                 }
                 )
                 }
             </ul>
-            <div>
-                <button onClick={() => changeFilter('all', taskListId)} className={taskFilter === 'all' ? 'active-filter' : ''}>All</button>
-                <button onClick={() => changeFilter('active', taskListId)} className={taskFilter === 'active' ? 'active-filter' : ''}>Active</button>
-                <button onClick={() => changeFilter('completed', taskListId)} className={taskFilter === 'completed' ? 'active-filter' : ''}>Completed</button>
-            </div>
-        </div>
+            <Stack direction={'row'} spacing={1} sx={{ marginTop: "auto" }}>
+                <Button sx={{ padding: '5px' }} onClick={() => changeFilter('all', taskListId)} size='small' variant={taskFilter === 'all' ? 'contained' : 'outlined'}>All</Button>
+                <Button sx={{ padding: '5px' }} onClick={() => changeFilter('active', taskListId)} size='small' variant={taskFilter === 'active' ? 'contained' : 'outlined'}>Active</Button>
+                <Button sx={{ padding: '5px' }} onClick={() => changeFilter('completed', taskListId)} size='small' variant={taskFilter === 'completed' ? 'contained' : 'outlined'}>Completed</Button>
+            </Stack>
+        </Paper>
     )
 }
 

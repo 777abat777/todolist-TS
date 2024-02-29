@@ -1,3 +1,4 @@
+import { TextField } from "@mui/material"
 import { useState } from "react"
 
 type EditableSpanPropsTypes = {
@@ -12,19 +13,21 @@ function EditableTitle(props: EditableSpanPropsTypes) {
         setEditMode(true)
         setTitle(props.title)
     }
-    function changeValue(e: React.ChangeEvent<HTMLInputElement>) {
+    function changeValue(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         setTitle(e.currentTarget.value)
     }
     function changeTitle() {
         setEditMode(false)
-        props.changeTitle(title)
+        if (title.length > 0) {
+            props.changeTitle(title)
+        }
     }
     return (
         <>
             {
                 editMode ?
-                    <input value={title} type="text" autoFocus onBlur={changeTitle} onChange={(e) => changeValue(e)} /> :
-                    <span onClick={editTitle}>{props.title}</span>
+                    <TextField size="small" sx={{ maxWidth: "50%" }} value={title} type="text" autoFocus onBlur={changeTitle} onChange={(e) => changeValue(e)} /> :
+                    <h3 style={{ wordBreak: "break-word", textAlign: "center" }} onClick={editTitle}>{props.title}</h3>
             }
         </>
     )
