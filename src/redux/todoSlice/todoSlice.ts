@@ -1,101 +1,68 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { buildCreateSlice, asyncThunkCreator } from '@reduxjs/toolkit'
+import type { PayloadAction, SerializedError } from '@reduxjs/toolkit'
 import { Task } from '../../components/Todolist/Todolist'
+import { todoApi } from '../../api/api'
 
 export type taskListType = {
-    id: number
-    title: string
-    filter: filterValuesTypes
+  id: number
+  title: string
+  tasks: Array<Task>
 }
-export type taskObjectsTypes = {
-    [key: string]: Array<Task>
-}
-export type filterValuesTypes = "all" | 'active' | 'completed'
 
 export type initialStateTypes = {
-    taskLists: Array<taskListType>
-    taskObjects: taskObjectsTypes
-    loading: boolean
-    error: null | boolean
-}
-
-let todolist1Id = 1
-let todolist2Id = 2
-
-let initialTasks: Array<taskListType> = [
-    { id: todolist1Id, title: "first", filter: 'all' },
-    { id: todolist2Id, title: "second", filter: 'completed' },
-]
-let initialtaskObjects = {
-    [todolist1Id]: [
-        { id: 1, title: 'Html', isDone: true },
-        { id: 2, title: 'css', isDone: false },
-        { id: 3, title: 'js', isDone: false }
-    ],
-    [todolist2Id]: [
-        { id: 1, title: 'Html', isDone: true },
-        { id: 2, title: 'css', isDone: false },
-        { id: 3, title: 'js', isDone: false }
-    ]
+  taskLists: taskListType[]
+  loading: boolean
+  error: null | boolean | SerializedError
 }
 
 const initialState: initialStateTypes = {
-    taskLists: initialTasks,
-    taskObjects: initialtaskObjects,
-    loading: false,
-    error: null,
+  taskLists: [],
+  loading: false,
+  error: null,
 }
 
-// export const fetchPosts = createAsyncThunk(
-//     'posts/fetchPosts',
-//     async (_, { rejectWithValue, dispatch }) => {
-//         const response: any = await postApi.getPosts()
-//         if (response.status !== 200) {
-//             return rejectWithValue(`Server error ${response.message}`)
-//         }
-//         const data: Array<PostType> = await response.data
-//         dispatch(setPosts(data))
+const createAppSlice = buildCreateSlice({
+  creators: { asyncThunk: asyncThunkCreator },
+})
 
-//     }
-// )
-
-
-export const TodosSlice = createSlice({
-    name: 'todolists',
-    initialState,
-    reducers: {
-        setTodos: (state, action) => {
-            state.taskLists = action.payload
+export const TodosSlice = createAppSlice({
+  name: 'todos',
+  initialState,
+  selectors: {
+    selectTodos: state => state.taskLists
+  },
+  reducers: (create) => ({
+    fetchTodos: create.asyncThunk(
+      async (_:void) => {
+        const response: any = await todoApi.getTodos()
+        return await response.data
+      },
+      {
+        pending: (state) => {
+          state.loading = true
+          state.error = null
         },
-        setTaskObjects: (state, action) => {
-            state.taskObjects = action.payload
+        fulfilled: (state, action) => {
+          state.loading = false
+          state.error = null
+          state.taskLists=action.payload
         },
-        removeTaskAction(state, action) {
-            let outputTasks = state.taskObjects[action.payload.taskListId].filter(el => el.id !== action.payload.id)
-            state.taskObjects[action.payload.taskListId] = outputTasks
-            setTaskObjects({ ...state.taskObjects })
-        }
+        rejected: (state, action) => {
+          state.error = action.error
+          state.loading = false
+        },
+        // settled is called for both rejected and fulfilled actions
+        settled: (state, action) => {
+          state.loading = false
+        },
+      }
+    ),
+    setTodos: create.reducer((state, action: PayloadAction<taskListType[]>) => {
+      state.taskLists = action.payload
+    }),
+  })
+})
 
-    },
-    // extraReducers(builder) {
-    //     builder
-    // .addCase(fetchPosts.pending, (state) => {
-    //     state.loading = true
-    //     state.error = null
-    // })
-    // .addCase(fetchPosts.fulfilled, (state, action) => {
-    //     state.loading = false
-    //     state.error = null
-
-    // })
-    // .addCase(fetchPosts.rejected, (state, action) => {
-    //     state.error = action.error
-    //     state.loading = false
-    //     console.log(state.error)
-    // })
-    // },
-}
-)
-
-export const { setTodos, setTaskObjects, removeTaskAction } = TodosSlice.actions
+export const { setTodos, fetchTodos } = TodosSlice.actions
+export const { selectTodos } = TodosSlice.selectors
 export default TodosSlice.reducer
